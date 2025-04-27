@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Bus Tracking System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/registration.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-bus"></i>
+            <span>Bus tracking & Booking</span>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="track.html">Track Bus</a>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="admin/login.html" class="admin-link">Admin Login</a>
+        </div>
+    </nav>
+
+    <div class="registration-container">
+        <div class="registration-card">
+            <div class="card-left">
+                <h2>Welcome!</h2>
+                <p>Create your account and start your journey with us</p>
+                <img src="images/bus-illustration.svg" alt="Bus Illustration">
+            </div>
+            <div class="card-right">
+                <h2>Create Account</h2>
+                <form id="registrationForm" onsubmit="return validateForm()">
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="fullName" placeholder="Full Name" required>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="Email Address" required>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="phone" placeholder="Phone Number" required>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Password" required>
+                        <i class="fas fa-eye toggle-password"></i>
+                    </div>
+
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                        <i class="fas fa-eye toggle-password"></i>
+                    </div>
+
+                    <div class="terms">
+                        <input type="checkbox" id="terms" required>
+                        <label for="terms">I agree to the Terms & Conditions</label>
+                    </div>
+
+                    <button type="submit" class="register-btn">Create Account</button>
+                </form>
+
+                <div class="social-login">
+                    <p>Or register with</p>
+                    <div class="social-buttons">
+                        <button class="google"><i class="fab fa-google"></i> Google</button>
+                        <button class="facebook"><i class="fab fa-facebook-f"></i> Facebook</button>
+                    </div>
+                </div>
+
+                <p class="login-link">Already have an account? <a href="login.html">Login here</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 
