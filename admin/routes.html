@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Management - BusTracker</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Reuse dashboard styles */
+        body {
+            background: var(--light-bg);
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            grid-template-rows: auto 1fr;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            background: var(--white);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar {
+            background: var(--white);
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .table-container {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow);
+        }
+
+        /* Add specific styles for routes page */
+        .route-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--light-bg);
+            border-radius: 0.5rem;
+        }
+
+        .route-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .route-map {
+            height: 400px;
+            background: var(--white);
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .route-stops {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .stop-card {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow);
+        }
+
+        .stop-card h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-color);
+        }
+
+        .stop-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .info-item {
+            font-size: 0.9rem;
+        }
+
+        .info-label {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .route-filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1><i class="fas fa-route"></i> Route Management</h1>
+        </div>
+        <div class="user-menu">
+            <span>Welcome, Admin</span>
+            <a href="login.html" class="btn secondary">Logout</a>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-tachometer-alt"></i>
+            Dashboard
+        </a>
+        <a href="buses.html" class="nav-item">
+            <i class="fas fa-bus"></i>
+            Buses
+        </a>
+        <a href="routes.html" class="nav-item active">
+            <i class="fas fa-route"></i>
+            Routes
+        </a>
+        <a href="bookings.html" class="nav-item">
+            <i class="fas fa-ticket-alt"></i>
+            Bookings
+        </a>
+        <a href="users.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            Users
+        </a>
+        <a href="settings.html" class="nav-item">
+            <i class="fas fa-cog"></i>
+            Settings
+        </a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Filters -->
+        <div class="route-filters">
+            <div class="filter-group">
+                <label for="statusFilter">Status</label>
+                <select id="statusFilter">
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="searchRoute">Search Route</label>
+                <input type="text" id="searchRoute" placeholder="Enter route name or ID">
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="route-actions">
+            <button class="btn primary" onclick="showAddRouteModal()">
+                <i class="fas fa-plus"></i> Add New Route
+            </button>
+            <button class="btn secondary" onclick="refreshRouteData()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+
+        <!-- Route Map -->
+        <div class="route-map" id="routeMap">
+            <!-- Map will be loaded here -->
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                <i class="fas fa-map-marked-alt" style="font-size: 3rem; color: var(--primary-color);"></i>
+                <p>Route Map Loading...</p>
+            </div>
+        </div>
+
+        <!-- Route Stops -->
+        <div class="route-stops" id="routeStops">
+            <!-- Stop cards will be populated dynamically -->
+        </div>
+
+        <!-- Route Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Route ID</th>
+                        <th>Route Name</th>
+                        <th>Stops</th>
+                        <th>Distance</th>
+                        <th>Duration</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="routeTableBody">
+                    <!-- Route data will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Add Route Modal -->
+    <div id="addRouteModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="hideAddRouteModal()">&times;</button>
+            <h2>Add New Route</h2>
+            <form id="addRouteForm">
+                <div class="form-group">
+                    <label for="routeId">Route ID</label>
+                    <input type="text" id="routeId" required placeholder="Enter route ID">
+                </div>
+                <div class="form-group">
+                    <label for="routeName">Route Name</label>
+                    <input type="text" id="routeName" required placeholder="Enter route name">
+                </div>
+                <div class="form-group">
+                    <label for="startPoint">Start Point</label>
+                    <input type="text" id="startPoint" required placeholder="Enter start point">
+                </div>
+                <div class="form-group">
+                    <label for="endPoint">End Point</label>
+                    <input type="text" id="endPoint" required placeholder="Enter end point">
+                </div>
+                <div class="form-group">
+                    <label for="stops">Stops (comma separated)</label>
+                    <input type="text" id="stops" required placeholder="Enter stops separated by commas">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" required>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn primary">Add Route</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Demo data
+        let routes = [
+            {
+                id: 'R001',
+                name: 'City Center → Airport',
+                startPoint: 'City Center',
+                endPoint: 'Airport',
+                stops: ['City Center', 'Main Square', 'Business District', 'Airport'],
+                distance: '25 km',
+                duration: '45 mins',
+                status: 'Active'
+            },
+            {
+                id: 'R002',
+                name: 'North Station → South Station',
+                startPoint: 'North Station',
+                endPoint: 'South Station',
+                stops: ['North Station', 'University', 'Shopping Mall', 'South Station'],
+                distance: '20 km',
+                duration: '35 mins',
+                status: 'Active'
+            },
+            {
+                id: 'R003',
+                name: 'West Terminal → East Terminal',
+                startPoint: 'West Terminal',
+                endPoint: 'East Terminal',
+                stops: ['West Terminal', 'Industrial Area', 'Residential Area', 'East Terminal'],
+                distance: '30 km',
+                duration: '50 mins',
+                status: 'Inactive'
+            }
+        ];
+
+        // Populate route stops
+        function populateRouteStops() {
+            const routeStops = document.getElementById('routeStops');
+            routeStops.innerHTML = '';
+
+            routes.forEach(route => {
+                route.stops.forEach((stop, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'stop-card';
+                    card.innerHTML = `
+                        <h3>${stop}</h3>
+                        <div class="stop-info">
+                            <div class="info-item">
+                                <span class="info-label">Route:</span>
+                                <span>${route.name}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Stop Number:</span>
+                                <span>${index + 1}</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Status:</span>
+                                <span class="status-badge status-${route.status.toLowerCase()}">${route.status}</span>
+                            </div>
+                        </div>
+                    `;
+                    routeStops.appendChild(card);
+                });
+            });
+        }
+
+        // Populate route table
+        function populateRouteTable() {
+            const tableBody = document.getElementById('routeTableBody');
+            tableBody.innerHTML = '';
+
+            routes.forEach(route => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${route.id}</td>
+                    <td>${route.name}</td>
+                    <td>${route.stops.length}</td>
+                    <td>${route.distance}</td>
+                    <td>${route.duration}</td>
+                    <td><span class="status-badge status-${route.status.toLowerCase()}">${route.status}</span></td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editRoute('${route.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteRoute('${route.id}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Filter routes
+        function filterRoutes() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchTerm = document.getElementById('searchRoute').value.toLowerCase();
+
+            const filteredRoutes = routes.filter(route => {
+                const matchesStatus = statusFilter === 'all' || route.status.toLowerCase() === statusFilter;
+                const matchesSearch = searchTerm === '' || 
+                    route.id.toLowerCase().includes(searchTerm) ||
+                    route.name.toLowerCase().includes(searchTerm);
+                
+                return matchesStatus && matchesSearch;
+            });
+
+            // Update display with filtered routes
+            routes = filteredRoutes;
+            populateRouteStops();
+            populateRouteTable();
+        }
+
+        // Event listeners for filters
+        document.getElementById('statusFilter').addEventListener('change', filterRoutes);
+        document.getElementById('searchRoute').addEventListener('input', filterRoutes);
+
+        // Initialize
+        populateRouteStops();
+        populateRouteTable();
+    </script>
+</body>
+</html> 

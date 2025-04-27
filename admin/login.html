@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Gujarat Bus Tracker</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF4B2B;
+            --primary-dark: #FF416C;
+            --secondary: #845EC2;
+            --accent: #00C9A7;
+            --background: #f8f9ff;
+            --surface: #ffffff;
+            --text-primary: #2B2D42;
+            --text-secondary: #8D99AE;
+            --error: #FF6B6B;
+            --success: #4ECB71;
+            --hover-bg: rgba(255, 75, 43, 0.05);
+            --input-text: #2B2D42;
+            --input-border: rgba(0, 0, 0, 0.1);
+            --input-focus-border: var(--primary);
+            --button-text: #ffffff;
+            --button-text-secondary: var(--primary);
+        }
+
+        body {
+            background: 
+                radial-gradient(circle at top right, rgba(255, 75, 43, 0.1), transparent 40%),
+                radial-gradient(circle at bottom left, rgba(132, 94, 194, 0.1), transparent 40%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            display: flex;
+            gap: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+        }
+
+        .form-section {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .divider {
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--text-secondary), transparent);
+            margin: 0 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .header h2 {
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            display: inline-block;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--input-border);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--surface);
+            color: var(--input-text);
+        }
+
+        .form-group input:focus {
+            border-color: var(--input-focus-border);
+            box-shadow: 0 0 0 4px rgba(255, 75, 43, 0.1);
+            outline: none;
+        }
+
+        .form-group input:hover {
+            border-color: var(--primary);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+
+        .submit-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .login-btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--button-text);
+        }
+
+        .login-btn:hover {
+            opacity: 0.95;
+        }
+
+        .register-btn {
+            background: var(--surface);
+            color: var(--button-text-secondary);
+            border: 2px solid var(--primary);
+        }
+
+        .register-btn:hover {
+            background: var(--primary);
+            color: var(--button-text);
+        }
+
+        .error-message {
+            display: none;
+            color: var(--error);
+            background-color: rgba(255, 107, 107, 0.1);
+            border: 1px solid var(--error);
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .success-message {
+            display: none;
+            color: var(--success);
+            background-color: rgba(78, 203, 113, 0.1);
+            border: 1px solid var(--success);
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .bottom-links {
+            margin-top: auto;
+            padding-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+            background: var(--hover-bg);
+        }
+
+        .loading-spinner {
+            display: none;
+        }
+
+        .loading .loading-spinner {
+            display: inline-block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        [data-theme="dark"] {
+            --background: #0F172A;
+            --surface: #1E293B;
+            --text-primary: #E2E8F0;
+            --text-secondary: #94A3B8;
+            --input-text: #E2E8F0;
+            --input-border: rgba(255, 255, 255, 0.1);
+            --hover-bg: rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="dark"] .container {
+            background: rgba(30, 41, 59, 0.95);
+        }
+
+        [data-theme="dark"] .form-group input {
+            background: rgba(15, 23, 42, 0.9);
+            color: var(--input-text);
+        }
+
+        [data-theme="dark"] .register-btn {
+            background: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 2rem;
+                gap: 2rem;
+            }
+
+            .divider {
+                width: 100%;
+                height: 1px;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle">
+        <button id="themeToggle" class="theme-toggle-btn">
+            <i class="fas fa-sun"></i>
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Login Section -->
+        <div class="form-section">
+            <div class="header">
+                <h2>Admin Login</h2>
+                <p>Welcome back! Please enter your credentials</p>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" name="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="password" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="submit-btn login-btn">
+                    <span>Sign In</span>
+                    <span class="loading-spinner">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                    </span>
+                </button>
+                <div id="loginError" class="error-message"></div>
+            </form>
+            <div class="bottom-links">
+                <a href="../index.html" class="back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to Homepage</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Registration Section -->
+        <div class="form-section">
+            <div class="header">
+                <h2>Admin Registration</h2>
+                <p>Create a new admin account</p>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="registerName">Full Name</label>
+                    <input type="text" id="registerName" name="name" required placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email Address</label>
+                    <input type="email" id="registerEmail" name="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" name="password" required placeholder="Create a password">
+                </div>
+                <div class="form-group">
+                    <label for="registerPhone">Phone Number</label>
+                    <input type="tel" id="registerPhone" name="phone" required placeholder="Enter your phone number">
+                </div>
+                <button type="submit" class="submit-btn register-btn">
+                    <span>Register</span>
+                    <span class="loading-spinner">
+                        <i class="fas fa-circle-notch fa-spin"></i>
+                    </span>
+                </button>
+                <div id="registerError" class="error-message"></div>
+                <div id="registerSuccess" class="success-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Login Form Handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorMessage = document.getElementById('loginError');
+
+            // Basic validation
+            if (!email || !password) {
+                errorMessage.textContent = 'Please fill in all fields';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                errorMessage.textContent = 'Please enter a valid email address';
+                errorMessage.style.display = 'block';
+                return;
+            }
+
+            try {
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+                errorMessage.style.display = 'none';
+
+                const response = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Request': 'true'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.role === 'admin') {
+                    localStorage.setItem('adminToken', data.token);
+                    localStorage.setItem('adminUser', JSON.stringify({
+                        name: data.name,
+                        email: data.email,
+                        role: data.role
+                    }));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    errorMessage.textContent = data.message || 'Invalid admin credentials';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Server error. Please try again later.';
+                errorMessage.style.display = 'block';
+            } finally {
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Registration Form Handler
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const phone = document.getElementById('registerPhone').value;
+            const errorMessage = document.getElementById('registerError');
+            const successMessage = document.getElementById('registerSuccess');
+
+            // Basic validation
+            if (!name || !email || !password || !phone) {
+                errorMessage.textContent = 'Please fill in all fields';
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                return;
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                errorMessage.textContent = 'Please enter a valid email address';
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                return;
+            }
+
+            // Phone validation
+            const phoneRegex = /^\d{10}$/;
+            if (!phoneRegex.test(phone)) {
+                errorMessage.textContent = 'Please enter a valid 10-digit phone number';
+                errorMessage.style.display = 'block';
+                successMessage.style.display = 'none';
+                return;
+            }
+
+            try {
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+                errorMessage.style.display = 'none';
+                successMessage.style.display = 'none';
+
+                const response = await fetch('http://localhost:5000/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Admin-Request': 'true'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        email,
+                        password,
+                        phone,
+                        role: 'admin'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    successMessage.textContent = 'Registration successful! You can now login.';
+                    successMessage.style.display = 'block';
+                    form.reset();
+                } else {
+                    errorMessage.textContent = data.message || 'Registration failed. Please try again.';
+                    errorMessage.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                errorMessage.textContent = 'Server error. Please try again later.';
+                errorMessage.style.display = 'block';
+            } finally {
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Clear error messages when user starts typing
+        ['loginEmail', 'loginPassword', 'registerName', 'registerEmail', 'registerPassword', 'registerPhone'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                document.getElementById('loginError').style.display = 'none';
+                document.getElementById('registerError').style.display = 'none';
+                document.getElementById('registerSuccess').style.display = 'none';
+            });
+        });
+    </script>
+
+    <script src="../js/theme.js"></script>
+</body>
+</html> 

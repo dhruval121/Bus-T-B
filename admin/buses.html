@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Management - BusTracker</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Reuse dashboard styles */
+        body {
+            background: var(--light-bg);
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            grid-template-rows: auto 1fr;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            background: var(--white);
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar {
+            background: var(--white);
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .table-container {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow);
+        }
+
+        /* Add specific styles for buses page */
+        .bus-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--light-bg);
+            border-radius: 0.5rem;
+        }
+
+        .bus-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .bus-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .bus-card {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow);
+        }
+
+        .bus-card h3 {
+            margin: 0 0 0.5rem 0;
+            color: var(--primary-color);
+        }
+
+        .bus-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .info-item {
+            font-size: 0.9rem;
+        }
+
+        .info-label {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+
+            .bus-filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1><i class="fas fa-bus"></i> Bus Management</h1>
+        </div>
+        <div class="user-menu">
+            <span>Welcome, Admin</span>
+            <a href="login.html" class="btn secondary">Logout</a>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-tachometer-alt"></i>
+            Dashboard
+        </a>
+        <a href="buses.html" class="nav-item active">
+            <i class="fas fa-bus"></i>
+            Buses
+        </a>
+        <a href="routes.html" class="nav-item">
+            <i class="fas fa-route"></i>
+            Routes
+        </a>
+        <a href="bookings.html" class="nav-item">
+            <i class="fas fa-ticket-alt"></i>
+            Bookings
+        </a>
+        <a href="users.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            Users
+        </a>
+        <a href="settings.html" class="nav-item">
+            <i class="fas fa-cog"></i>
+            Settings
+        </a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Filters -->
+        <div class="bus-filters">
+            <div class="filter-group">
+                <label for="statusFilter">Status</label>
+                <select id="statusFilter">
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="maintenance">Maintenance</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="routeFilter">Route</label>
+                <select id="routeFilter">
+                    <option value="all">All Routes</option>
+                    <option value="city-center">City Center → Airport</option>
+                    <option value="north-south">North Station → South Station</option>
+                    <option value="west-east">West Terminal → East Terminal</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="searchBus">Search Bus</label>
+                <input type="text" id="searchBus" placeholder="Enter bus ID or driver name">
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="bus-actions">
+            <button class="btn primary" onclick="showAddBusModal()">
+                <i class="fas fa-plus"></i> Add New Bus
+            </button>
+            <button class="btn secondary" onclick="refreshBusData()">
+                <i class="fas fa-sync-alt"></i> Refresh
+            </button>
+        </div>
+
+        <!-- Bus Details -->
+        <div class="bus-details" id="busDetails">
+            <!-- Bus cards will be populated dynamically -->
+        </div>
+
+        <!-- Bus Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bus ID</th>
+                        <th>Route</th>
+                        <th>Driver</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="busTableBody">
+                    <!-- Bus data will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <!-- Add Bus Modal -->
+    <div id="addBusModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="hideAddBusModal()">&times;</button>
+            <h2>Add New Bus</h2>
+            <form id="addBusForm">
+                <div class="form-group">
+                    <label for="busId">Bus ID</label>
+                    <input type="text" id="busId" required placeholder="Enter bus ID">
+                </div>
+                <div class="form-group">
+                    <label for="route">Route</label>
+                    <input type="text" id="route" required placeholder="Enter route">
+                </div>
+                <div class="form-group">
+                    <label for="driver">Driver</label>
+                    <input type="text" id="driver" required placeholder="Enter driver name">
+                </div>
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" required>
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                        <option value="Maintenance">Maintenance</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn primary">Add Bus</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Demo data
+        let buses = [
+            {
+                id: 'BUS001',
+                route: 'City Center → Airport',
+                driver: 'John Doe',
+                status: 'Active',
+                lastUpdated: new Date().toLocaleString(),
+                capacity: 50,
+                type: 'AC',
+                model: '2023',
+                registration: 'KA01AB1234'
+            },
+            {
+                id: 'BUS002',
+                route: 'North Station → South Station',
+                driver: 'Jane Smith',
+                status: 'Active',
+                lastUpdated: new Date().toLocaleString(),
+                capacity: 45,
+                type: 'Non-AC',
+                model: '2022',
+                registration: 'KA01CD5678'
+            },
+            {
+                id: 'BUS003',
+                route: 'West Terminal → East Terminal',
+                driver: 'Mike Johnson',
+                status: 'Inactive',
+                lastUpdated: new Date().toLocaleString(),
+                capacity: 40,
+                type: 'AC',
+                model: '2023',
+                registration: 'KA01EF9012'
+            }
+        ];
+
+        // Populate bus details
+        function populateBusDetails() {
+            const busDetails = document.getElementById('busDetails');
+            busDetails.innerHTML = '';
+
+            buses.forEach(bus => {
+                const card = document.createElement('div');
+                card.className = 'bus-card';
+                card.innerHTML = `
+                    <h3>${bus.id}</h3>
+                    <div class="bus-info">
+                        <div class="info-item">
+                            <span class="info-label">Route:</span>
+                            <span>${bus.route}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Driver:</span>
+                            <span>${bus.driver}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Status:</span>
+                            <span class="status-badge status-${bus.status.toLowerCase()}">${bus.status}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Capacity:</span>
+                            <span>${bus.capacity} seats</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Type:</span>
+                            <span>${bus.type}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Model:</span>
+                            <span>${bus.model}</span>
+                        </div>
+                    </div>
+                `;
+                busDetails.appendChild(card);
+            });
+        }
+
+        // Populate bus table
+        function populateBusTable() {
+            const tableBody = document.getElementById('busTableBody');
+            tableBody.innerHTML = '';
+
+            buses.forEach(bus => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${bus.id}</td>
+                    <td>${bus.route}</td>
+                    <td>${bus.driver}</td>
+                    <td><span class="status-badge status-${bus.status.toLowerCase()}">${bus.status}</span></td>
+                    <td>${bus.lastUpdated}</td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="editBus('${bus.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteBus('${bus.id}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Filter buses
+        function filterBuses() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const routeFilter = document.getElementById('routeFilter').value;
+            const searchTerm = document.getElementById('searchBus').value.toLowerCase();
+
+            const filteredBuses = buses.filter(bus => {
+                const matchesStatus = statusFilter === 'all' || bus.status.toLowerCase() === statusFilter;
+                const matchesRoute = routeFilter === 'all' || bus.route.toLowerCase().includes(routeFilter);
+                const matchesSearch = searchTerm === '' || 
+                    bus.id.toLowerCase().includes(searchTerm) ||
+                    bus.driver.toLowerCase().includes(searchTerm);
+                
+                return matchesStatus && matchesRoute && matchesSearch;
+            });
+
+            // Update display with filtered buses
+            buses = filteredBuses;
+            populateBusDetails();
+            populateBusTable();
+        }
+
+        // Event listeners for filters
+        document.getElementById('statusFilter').addEventListener('change', filterBuses);
+        document.getElementById('routeFilter').addEventListener('change', filterBuses);
+        document.getElementById('searchBus').addEventListener('input', filterBuses);
+
+        // Initialize
+        populateBusDetails();
+        populateBusTable();
+    </script>
+</body>
+</html> 
