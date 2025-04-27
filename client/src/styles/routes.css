@@ -1,0 +1,17 @@
+/* Add these styles if you want to customize further */
+.route-card-hover {
+  transition: transform 0.3s ease;
+}
+
+.route-card-hover:hover {
+  transform: translateY(-5px);
+}
+
+.amenity-chip {
+  margin: 4px;
+}
+
+.stop-chip {
+  margin: 4px;
+  background-color: #f5f5f5;
+} 
