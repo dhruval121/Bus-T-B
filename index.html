@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Booking & Tracking</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/track.css">
+    <link rel="stylesheet" href="css/payment.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top Bar with Bus Icon -->
+    <div class="top-bar">
+        <i class="fas fa-bus"></i>
+        <span>Bus Booking & Tracking</span>
+        <button class="close-btn">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-bus"></i>
+            <span>Bus tracking & Booking</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home" class="active">Home</a></li>
+            <li><a href="#book">Book Tickets</a></li>
+            <li><a href="#track">Track Bus</a></li>
+            <li><a href="#routes">Routes</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="nav-right">
+            <a href="admin/login.html" class="admin-link">Admin Login</a>
+            <div class="theme-toggle">
+                <button id="themeToggle" class="theme-toggle-btn">
+                    <i class="fas fa-sun"></i>
+                </button>
+            </div>
+            <div class="hamburger">
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Bus tracking and Booking</h1>
+            <p>Book tickets and track buses across Gujarat with ease</p>
+            <div class="hero-buttons">
+                <a href="#book" class="btn primary">Book Now</a>
+                <a href="#track" class="btn secondary">Track Bus</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Section -->
+    <section id="book" class="booking-section">
+        <h2>Book Your Tickets</h2>
+        <div class="booking-container">
+            <form id="bookingForm" class="booking-form">
+                <div class="form-group">
+                    <label for="from">From</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="from" 
+                            required 
+                            autocomplete="off"
+                            placeholder="Enter departure city"
+                        >
+                        <div class="suggestions" id="fromSuggestions"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="to">To</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="to" 
+                            required 
+                            autocomplete="off"
+                            placeholder="Enter destination city"
+                        >
+                        <div class="suggestions" id="toSuggestions"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="date">Travel Date</label>
+                    <input type="date" id="date" required>
+                </div>
+                <div class="form-group">
+                    <label for="passengers">Number of Passengers</label>
+                    <input type="number" id="passengers" min="1" max="6" required>
+                </div>
+                <button type="submit" class="btn primary">Search Buses</button>
+            </form>
+        </div>
+
+        <!-- Bus Search Results -->
+        <div id="searchResults" class="search-results" style="display: none;">
+            <h3>Available Buses</h3>
+            <div class="bus-list" id="busList"></div>
+        </div>
+    <!-- Tracking Section -->
+    <section id="track" class="tracking-section">
+        <div class="tracking-container">
+            <!-- Search Panel -->
+            <div class="search-panel">
+                <h2>Track Your Bus</h2>
+                <div class="search-form">
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            id="busSearch" 
+                            placeholder="Enter bus number or route"
+                            autocomplete="off"
+                        >
+                        <button onclick="searchBus()" class="search-btn">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Buses List -->
+                <div class="bus-list">
+                    <h3>Active Buses</h3>
+                    <div id="activeBuses" class="active-buses">
+                        <!-- Buses will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Container -->
+            <div class="map-container">
+                <div id="map"></div>
+                
+                <!-- Bus Info Panel -->
+                <div id="busInfo" class="bus-info">
+                    <div class="bus-info-header">
+                        <h3>Bus Information</h3>
+                        <button class="close-btn" onclick="closeBusInfo()">×</button>
+                    </div>
+                    <div id="busInfoContent" class="bus-info-content">
+                        <!-- Bus info will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Routes Section -->
+    <section id="routes" class="routes-section">
+        <h2>Popular Routes in Gujarat</h2>
+        <div class="routes-container" id="routesContainer">
+            <!-- Route Cards -->
+            <div class="route-card">
+                <div class="route-info">
+                    <h3>Ahmedabad → Surat</h3>
+                    <p>Distance: 265 km | Duration: 4h 30m</p>
+                    <p>Frequency: Every 30 mins</p>
+                    <p class="price">₹450</p>
+                    <div class="stops">
+                        <span>Stops:</span>
+                        <div class="stop-chips">
+                            <span class="chip">Nadiad</span>
+                            <span class="chip">Anand</span>
+                            <span class="chip">Bharuch</span>
+                        </div>
+                    </div>
+                    <div class="amenities">
+                        <span>Amenities:</span>
+                        <div class="amenity-chips">
+                            <span class="chip primary">AC</span>
+                            <span class="chip primary">WiFi</span>
+                            <span class="chip primary">USB Charging</span>
+                        </div>
+                    </div>
+                    <button class="btn primary" onclick="showPaymentModal('Ahmedabad', 'Surat', 450)">Book Now</button>
+                </div>
+            </div>
+
+            <div class="route-card">
+                <div class="route-info">
+                    <h3>Vadodara → Rajkot</h3>
+                    <p>Distance: 310 km | Duration: 5h 45m</p>
+                    <p>Frequency: Every 1 hour</p>
+                    <p class="price">₹550</p>
+                    <div class="stops">
+                        <span>Stops:</span>
+                        <div class="stop-chips">
+                            <span class="chip">Anand</span>
+                            <span class="chip">Nadiad</span>
+                            <span class="chip">Ahmedabad</span>
+                        </div>
+                    </div>
+                    <div class="amenities">
+                        <span>Amenities:</span>
+                        <div class="amenity-chips">
+                            <span class="chip primary">AC</span>
+                            <span class="chip primary">WiFi</span>
+                            <span class="chip primary">Snacks</span>
+                        </div>
+                    </div>
+                    <button class="btn primary" onclick="showPaymentModal('Vadodara', 'Rajkot', 550)">Book Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closePaymentModal()">&times;</span>
+            <h2>Complete Your Booking</h2>
+            <div class="booking-details">
+                <h3 id="routeDetails"></h3>
+                <p id="fareDetails"></p>
+            </div>
+            
+            <div class="payment-section">
+                <div class="payment-container">
+                    <h3>Payment Details</h3>
+                    <div class="fare-details">
+                        <div class="fare-item">
+                            <span>Base Fare</span>
+                            <span id="modalBaseFare">₹0</span>
+                        </div>
+                        <div class="fare-item">
+                            <span>Tax (5%)</span>
+                            <span id="modalTaxAmount">₹0</span>
+                        </div>
+                        <div class="fare-item">
+                            <span>Convenience Fee</span>
+                            <span>₹20</span>
+                        </div>
+                        <div class="fare-item total">
+                            <span>Total Amount</span>
+                            <span id="modalTotalFare">₹0</span>
+                        </div>
+                    </div>
+
+                    <div class="payment-methods">
+                        <h4>Select Payment Method</h4>
+                        <div class="payment-options">
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="upi">
+                                <div class="option-content">
+                                    <img src="images/payment/upi.png" alt="UPI" class="payment-icon">
+                                    <span>UPI</span>
+                                </div>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="card">
+                                <div class="option-content">
+                                    <img src="images/payment/card.png" alt="Card" class="payment-icon">
+                                    <span>Credit/Debit Card</span>
+                                </div>
+                            </label>
+                            <label class="payment-option">
+                                <input type="radio" name="paymentMethod" value="netbanking">
+                                <div class="option-content">
+                                    <img src="images/payment/netbanking.png" alt="Net Banking" class="payment-icon">
+                                    <span>Net Banking</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- UPI Payment Form -->
+                    <div id="modalUpiForm" class="payment-form" style="display: none;">
+                        <div class="form-group">
+                            <label for="modalUpiId">UPI ID</label>
+                            <input type="text" id="modalUpiId" placeholder="Enter your UPI ID">
+                        </div>
+                        <button type="button" class="btn primary" onclick="processUPIPayment()">Pay Now</button>
+                    </div>
+
+                    <!-- Card Payment Form -->
+                    <div id="modalCardForm" class="payment-form" style="display: none;">
+                        <div class="form-group">
+                            <label for="modalCardNumber">Card Number</label>
+                            <input type="text" id="modalCardNumber" placeholder="1234 5678 9012 3456">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="modalExpiryDate">Expiry Date</label>
+                                <input type="text" id="modalExpiryDate" placeholder="MM/YY">
+                            </div>
+                            <div class="form-group">
+                                <label for="modalCvv">CVV</label>
+                                <input type="password" id="modalCvv" placeholder="123">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalCardName">Name on Card</label>
+                            <input type="text" id="modalCardName" placeholder="Enter name as on card">
+                        </div>
+                        <button type="button" class="btn primary" onclick="processCardPayment()">Pay Now</button>
+                    </div>
+
+                    <!-- Net Banking Form -->
+                    <div id="modalNetbankingForm" class="payment-form" style="display: none;">
+                        <div class="form-group">
+                            <label for="modalBank">Select Bank</label>
+                            <select id="modalBank">
+                                <option value="">Select your bank</option>
+                                <option value="sbi">State Bank of India</option>
+                                <option value="hdfc">HDFC Bank</option>
+                                <option value="icici">ICICI Bank</option>
+                                <option value="axis">Axis Bank</option>
+                                <option value="bob">Bank of Baroda</option>
+                            </select>
+                        </div>
+                        <button type="button" class="btn primary" onclick="processNetBankingPayment()">Pay Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticket Confirmation Modal -->
+    <div id="ticketModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeTicketModal()">&times;</span>
+            <h2>Booking Confirmed!</h2>
+            <div class="ticket-details">
+                <div class="ticket-header">
+                    <h3>Gujarat BusTracker</h3>
+                    <p>E-Ticket</p>
+                </div>
+                <div class="ticket-info">
+                    <div class="info-row">
+                        <span>Booking ID:</span>
+                        <span id="bookingId"></span>
+                    </div>
+                    <div class="info-row">
+                        <span>Route:</span>
+                        <span id="ticketRoute"></span>
+                    </div>
+                    <div class="info-row">
+                        <span>Date:</span>
+                        <span id="ticketDate"></span>
+                    </div>
+                    <div class="info-row">
+                        <span>Time:</span>
+                        <span id="ticketTime"></span>
+                    </div>
+                    <div class="info-row">
+                        <span>Passengers:</span>
+                        <span id="ticketPassengers"></span>
+                    </div>
+                    <div class="info-row">
+                        <span>Amount Paid:</span>
+                        <span id="ticketAmount"></span>
+                    </div>
+                </div>
+                <div class="ticket-footer">
+                    <p>Thank you for choosing Gujarat BusTracker!</p>
+                    <button class="btn primary" onclick="downloadTicket()">Download Ticket</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <h2>Contact Us</h2>
+        <div class="contact-container">
+            <form id="contactForm" class="contact-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" required></textarea>
+                </div>
+                <button type="submit" class="btn primary">Send Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Gujarat BusTracker</h3>
+                <p>Your trusted partner for bus booking across Gujarat.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Popular Routes</h3>
+                <ul>
+                    <li>Ahmedabad - Surat</li>
+                    <li>Vadodara - Rajkot</li>
+                    <li>Surat - Gandhinagar</li>
+                    <li>Ahmedabad - Dwarka</li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#book">Book Tickets</a></li>
+                    <li><a href="#track">Track Bus</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Connect With Us</h3>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Gujarat BusTracker. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/gujaratCities.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/booking.js"></script>
+    <script src="js/track.js"></script>
+    <script src="js/payment.js"></script>
+    <script src="js/main.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_VALID_API_KEY&callback=initMap" async defer></script>
+</body>
+</html>
